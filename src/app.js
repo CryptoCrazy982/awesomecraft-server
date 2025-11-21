@@ -17,14 +17,27 @@ import contactRoutes from "./routes/contact.js";
 dotenv.config();
 connectDB();
 
-const app = express(); // ✅ must come before any app.use()
+const app = express();
 
-app.use(cors());
+// ✅ FIXED CORS FOR PRODUCTION & LOCAL
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",                      // Local client (Vite)
+      "https://awesomecraft-client.vercel.app"      // Your deployed frontend
+    ],
+    credentials: true,
+  })
+);
+
+// Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Upload route must come before other routes
 app.use("/api/upload", uploadRoutes);
 
-// ✅ All routes after defining app
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/templates", templateRoutes);
@@ -33,6 +46,7 @@ app.use("/api/banners", bannerRoutes);
 app.use("/api/public/templates", publicTemplateRoutes);
 app.use("/api/contact", contactRoutes);
 
+// Test route
 app.get("/", (req, res) => {
   res.send("AwesomeCrafts API is running 🚀");
 });
